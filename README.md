@@ -103,3 +103,29 @@ See the [actions tab](https://github.com/actions/typescript-action/actions) for 
 ## Usage:
 
 After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+
+# steam price action
+
+Collects the current prices [G2A](https://g2a.com/) prices from [allkeyshop](https://www.allkeyshop.com ) for given Steam products. 
+
+# How to use
+
+
+- Goto [allkeyshop](https://www.allkeyshop.com ) and search the wanted product
+- Get the product id with the Chrome dev tools:
+```javascript
+document.querySelector('[data-product-id]').attributes['data-product-id'].value
+```
+- Call the action
+```yaml
+ - uses: ste-xx/steam-price-action@main
+   with:
+     input: |
+       [
+         { "productId": "<product_id>", "label": "<choose some label>" }
+       ]
+```
+- use the outputs format to whatever you need
+- example action can be found [here](https://github.com/ste-xx/steam-price-watcher)
+
+## options

@@ -1,16 +1,13 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import {fetch, FetchResponse} from './fetch'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
+    await fetch({
+      fetchData: ({productId}: {productId: string}): Promise<FetchResponse> => fetch(`https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`).then(r => r.json() as Promise<FetchResponse>),
+      readInput: () => JSON.parse(core.getInput("input")),
+      writeOutput: (data: string) => core.setOutput("tsv", data)
+    });
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
