@@ -11,7 +11,7 @@ document.querySelector('[data-product-id]').attributes['data-product-id'].value
 ```
 - Call the action
 ```yaml
- - uses: ste-xx/steam-price-action@main
+ - uses: ste-xx/steam-price-action@v1
    with:
      input: |
        [
