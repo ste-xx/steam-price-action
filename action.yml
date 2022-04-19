@@ -1,4 +1,4 @@
-name: 'steam-price-action'(
+name: 'steam-price-action'
 description: 'Fetches prices for steam products from key reseller (G2A.com)'
 author: 'Stefan Breitenstein'
 inputs:
