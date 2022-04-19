@@ -19,11 +19,12 @@ document.querySelector('[data-product-id]').attributes['data-product-id'].value
        ]
    id: price
 ```
-- use the outputs further in the action.
+- `input` expects a json as described in this [schema](./schema.json)
+- Use the outputs further in the action.
 ```yaml
  - run: echo "${{steps.price.outputs.tsv}}"
 ```
-- example workflow can be found [here](https://github.com/ste-xx/steam-price-watcher/blob/main/.github/workflows/report.yml)
+- Example workflow can be found [here](https://github.com/ste-xx/steam-price-watcher/blob/main/.github/workflows/report.yml)
 
 ### Supported output formats 
 
