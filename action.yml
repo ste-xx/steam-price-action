@@ -1,11 +1,14 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'steam-price-action'(
+description: 'Fetches prices for steam products from key reseller (G2A.com)'
+author: 'Stefan Breitenstein'
 inputs:
-  milliseconds: # change this
+  input:
+    description: 'given json like described in the schema.json'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+outputs:
+  tsv:
+    description: 'Report as tsv'
+
 runs:
   using: 'node16'
   main: 'dist/index.js'

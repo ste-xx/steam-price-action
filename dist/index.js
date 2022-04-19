@@ -1,6 +1,53 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 387:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toTsv = exports.fetch = void 0;
+const fetch = (args) => __awaiter(void 0, void 0, void 0, function* () {
+    const responseInputTuples = yield Promise.all(args
+        .readInput()
+        .map((input) => __awaiter(void 0, void 0, void 0, function* () {
+        return [
+            yield args.fetchData(input),
+            input
+        ];
+    })));
+    const result = responseInputTuples.map(([response, input]) => {
+        var _a, _b, _c;
+        const MERCHANT_G2A = '61';
+        const offer = response.offers.find(o => o.merchant === MERCHANT_G2A && o.platform === 'steam');
+        return [
+            input.label,
+            (_b = (_a = offer === null || offer === void 0 ? void 0 : offer.price.eur.priceWithoutCoupon) !== null && _a !== void 0 ? _a : offer === null || offer === void 0 ? void 0 : offer.price.eur.price) !== null && _b !== void 0 ? _b : -1,
+            (_c = offer === null || offer === void 0 ? void 0 : offer.affiliateUrl) !== null && _c !== void 0 ? _c : '-'
+        ];
+    });
+    args.writeOutput(['label', 'price', 'link'], result);
+});
+exports.fetch = fetch;
+const toTsv = (header, data) => {
+    const rows = data.map(e => e.join('\t'));
+    return [header.join('\t'), ...rows].join('\n');
+};
+exports.toTsv = toTsv;
+
+
+/***/ }),
+
 /***/ 109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -36,16 +83,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-const wait_1 = __nccwpck_require__(817);
+const fetch_1 = __nccwpck_require__(387);
+const http_client_1 = __nccwpck_require__(925);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const ms = core.getInput('milliseconds');
-            core.debug(`Waiting ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-            core.debug(new Date().toTimeString());
-            yield (0, wait_1.wait)(parseInt(ms, 10));
-            core.debug(new Date().toTimeString());
-            core.setOutput('time', new Date().toTimeString());
+            yield (0, fetch_1.fetch)({
+                fetchData: ({ productId }) => __awaiter(this, void 0, void 0, function* () {
+                    const client = new http_client_1.HttpClient();
+                    const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
+                    const { result } = yield client.getJson(url);
+                    if (!result) {
+                        throw new Error(`No successful fetch for ${productId}`);
+                    }
+                    return result;
+                }),
+                readInput: () => JSON.parse(core.getInput('input')),
+                writeOutput: (header, data) => core.setOutput('tsv', (0, fetch_1.toTsv)(header, data))
+            });
         }
         catch (error) {
             if (error instanceof Error)
@@ -54,37 +109,6 @@ function run() {
     });
 }
 run();
-
-
-/***/ }),
-
-/***/ 817:
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = void 0;
-function wait(milliseconds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(resolve => {
-            if (isNaN(milliseconds)) {
-                throw new Error('milliseconds not a number');
-            }
-            setTimeout(() => resolve('done!'), milliseconds);
-        });
-    });
-}
-exports.wait = wait;
 
 
 /***/ }),

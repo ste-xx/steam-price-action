@@ -1,11 +1,14 @@
-import {getInput, setOutput} from "@actions/core";
+type Input = {
+  productId: string
+  label: string
+}[]
 
-export interface FetchResponse{
-  success:boolean;
+interface FetchResponse {
+  success: boolean
   offers: {
-    affiliateUrl: string;
-    merchant: string;
-    platform: 'steam' | string;
+    affiliateUrl: string
+    merchant: string
+    platform: 'steam' | string
     price: {
       eur: {
         price: number
@@ -15,34 +18,48 @@ export interface FetchResponse{
   }[]
 }
 
-const MERCHANT_G2A = '61';
-
-const findMerchant = (merchant: String) => {
-  return (offer: FetchResponse['offers'][number]) => offer.merchant === merchant
+export interface Args {
+  readInput: () => Input
+  fetchData: (input: Input[number]) => Promise<FetchResponse>
+  writeOutput: (
+    header: ['label', 'price', 'link'],
+    data: [label: string, price: number, url: string][]
+  ) => void
 }
 
-type Input  = {
-  productId: string;
-  label: string;
-}[]
+export const fetch = async (args: Args): Promise<void> => {
+  const responseInputTuples = await Promise.all(
+    args
+      .readInput()
+      .map(
+        async (input): Promise<[FetchResponse, Input[number]]> => [
+          await args.fetchData(input),
+          input
+        ]
+      )
+  )
 
-const collectData = <T>(fetchFn: (input: Input[number]) => Promise<FetchResponse>,  map: (x: [r: FetchResponse, i: Input[number]]) => T) => {
-  return async (input: Input[number]) => fetchFn(input).then((r) => map([r, input]));
+  const result = responseInputTuples.map(
+    ([response, input]): [string, number, string] => {
+      const MERCHANT_G2A = '61'
+      const offer = response.offers.find(
+        o => o.merchant === MERCHANT_G2A && o.platform === 'steam'
+      )
+      return [
+        input.label,
+        offer?.price.eur.priceWithoutCoupon ?? offer?.price.eur.price ?? -1,
+        offer?.affiliateUrl ?? '-'
+      ]
+    }
+  )
+
+  args.writeOutput(['label', 'price', 'link'], result)
 }
-const input = [
-  {productId: '70843', label: 'Disciples Liberation'}
-];
 
-export const fetch = (async (args) => {
-  const input = args.readInput();
-  const collectDataFn = collectData(args.fetchData, ([r, i]) => {
-    const offer = r.offers.find(findMerchant(MERCHANT_G2A));
-    return [i.label, offer?.price.eur.priceWithoutCoupon ?? offer?.price.eur.price ?? -1, offer?.affiliateUrl ?? '-'];
-  });
-
-  const result = await Promise.all(input.map(collectDataFn));
-  const rows = result.map(e => e.join("\t"));
-  const tsv = [['label', 'price', 'link'].join("\t"), ...rows].join("\n");
-  args.writeOutput(tsv);
-
-});
+export const toTsv = (
+  header: ['label', 'price', 'link'],
+  data: [string, number, string][]
+): string => {
+  const rows = data.map(e => e.join('\t'))
+  return [header.join('\t'), ...rows].join('\n')
+}

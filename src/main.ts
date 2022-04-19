@@ -1,13 +1,25 @@
 import * as core from '@actions/core'
-import {fetch, FetchResponse} from './fetch'
+import {Args, fetch, toTsv} from './fetch'
+import {HttpClient} from '@actions/http-client'
 
 async function run(): Promise<void> {
   try {
     await fetch({
-      fetchData: ({productId}: {productId: string}): Promise<FetchResponse> => fetch(`https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`).then(r => r.json() as Promise<FetchResponse>),
-      readInput: () => JSON.parse(core.getInput("input")),
-      writeOutput: (data: string) => core.setOutput("tsv", data)
-    });
+      fetchData: async ({productId}) => {
+        const client = new HttpClient()
+        const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
+        const {result} = await client.getJson<ReturnType<Args['fetchData']>>(
+          url
+        )
+
+        if (!result) {
+          throw new Error(`No successful fetch for ${productId}`)
+        }
+        return result
+      },
+      readInput: () => JSON.parse(core.getInput('input')),
+      writeOutput: (header, data) => core.setOutput('tsv', toTsv(header, data))
+    })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
