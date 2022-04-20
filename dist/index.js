@@ -17,15 +17,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.toTsv = exports.fetch = void 0;
+const addArg = (fn) => (arg) => __awaiter(void 0, void 0, void 0, function* () { return [yield fn(arg), arg]; });
 const fetch = (args) => __awaiter(void 0, void 0, void 0, function* () {
-    const responseInputTuples = yield Promise.all(args
-        .readInput()
-        .map((input) => __awaiter(void 0, void 0, void 0, function* () {
-        return [
-            yield args.fetchData(input),
-            input
-        ];
-    })));
+    const fetchDataWithArgs = addArg(args.fetchData);
+    const responseInputTuples = yield Promise.all(args.readInput().map(fetchDataWithArgs));
     const result = responseInputTuples.map(([response, input]) => {
         var _a, _b, _c;
         const MERCHANT_G2A = '61';
@@ -55,7 +50,11 @@ exports.toTsv = toTsv;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
