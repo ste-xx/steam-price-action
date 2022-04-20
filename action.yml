@@ -11,6 +11,8 @@ inputs:
 outputs:
   tsv:
     description: 'Report as tsv'
+  json:
+    description: 'Report as tsv'
 
 runs:
   using: 'node16'

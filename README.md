@@ -31,3 +31,4 @@ document.querySelector('[data-product-id]').attributes['data-product-id'].value
 | format | output-key |
 |--------|------------|
 | tsv    | tsv        |
+| json   | json       |

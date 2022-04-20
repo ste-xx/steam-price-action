@@ -60,3 +60,16 @@ export const toTsv = (
   const rows = data.map(e => e.join('\t'))
   return [header.join('\t'), ...rows].join('\n')
 }
+
+export const toJSON = (
+  header: ['label', 'price', 'link'],
+  data: Entry[]
+): string => {
+  const rows = Object.fromEntries(
+    data.map(([label, price, url]) => [
+      label,
+      {[header[1]]: price, [header[2]]: url}
+    ])
+  )
+  return JSON.stringify(rows, null, 2)
+}

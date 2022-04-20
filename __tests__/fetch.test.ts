@@ -1,4 +1,4 @@
-import {fetch, toTsv} from '../src/fetch'
+import {fetch, toJSON, toTsv} from '../src/fetch'
 import {expect, test, jest} from '@jest/globals'
 
 test('happy case', async () => {
@@ -157,4 +157,25 @@ test('toTsv', () => {
   ).toEqual(`label\tprice\tlink
 given_label\t888\t<url_to_offer>
 another_label\t888\t<url_to_offer>`)
+})
+
+test('toJson', () => {
+  expect(
+    toJSON(
+      ['label', 'price', 'link'],
+      [
+        ['given_label', 888, '<url_to_offer>'],
+        ['another_label', 888, '<url_to_offer>']
+      ]
+    )
+  ).toEqual(`{
+  "given_label": {
+    "price": 888,
+    "link": "<url_to_offer>"
+  },
+  "another_label": {
+    "price": 888,
+    "link": "<url_to_offer>"
+  }
+}`)
 })

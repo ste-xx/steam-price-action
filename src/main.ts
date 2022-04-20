@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {Args, fetch, toTsv} from './fetch'
+import {Args, fetch, toJSON, toTsv} from './fetch'
 import {HttpClient} from '@actions/http-client'
 
 async function run(): Promise<void> {
@@ -18,7 +18,10 @@ async function run(): Promise<void> {
         return result
       },
       readInput: () => JSON.parse(core.getInput('input')),
-      writeOutput: (header, data) => core.setOutput('tsv', toTsv(header, data))
+      writeOutput: (header, data) => {
+        core.setOutput('tsv', toTsv(header, data))
+        core.setOutput('json', toJSON(header, data))
+      }
     })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)

@@ -16,7 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toTsv = exports.fetch = void 0;
+exports.toJSON = exports.toTsv = exports.fetch = void 0;
 const addArg = (fn) => (arg) => __awaiter(void 0, void 0, void 0, function* () { return [yield fn(arg), arg]; });
 const fetch = (args) => __awaiter(void 0, void 0, void 0, function* () {
     const fetchDataWithArgs = addArg(args.fetchData);
@@ -39,6 +39,14 @@ const toTsv = (header, data) => {
     return [header.join('\t'), ...rows].join('\n');
 };
 exports.toTsv = toTsv;
+const toJSON = (header, data) => {
+    const rows = Object.fromEntries(data.map(([label, price, url]) => [
+        label,
+        { [header[1]]: price, [header[2]]: url }
+    ]));
+    return JSON.stringify(rows, null, 2);
+};
+exports.toJSON = toJSON;
 
 
 /***/ }),
@@ -98,7 +106,10 @@ function run() {
                     return result;
                 }),
                 readInput: () => JSON.parse(core.getInput('input')),
-                writeOutput: (header, data) => core.setOutput('tsv', (0, fetch_1.toTsv)(header, data))
+                writeOutput: (header, data) => {
+                    core.setOutput('tsv', (0, fetch_1.toTsv)(header, data));
+                    core.setOutput('json', (0, fetch_1.toJSON)(header, data));
+                }
             });
         }
         catch (error) {
