@@ -4,6 +4,11 @@ import {
   fetchSteamWishList
 } from './fetchSteamWishList'
 import {HttpClient} from '@actions/http-client'
+import {parse} from 'node-html-parser'
+import {
+  Args as FetchProductIdArgs,
+  fetchProductIdFromSteamProduct
+} from './fetchProductIdFromSteamProduct'
 
 async function run(): Promise<void> {
   try {
@@ -17,25 +22,21 @@ async function run(): Promise<void> {
         ReturnType<SteamWishListArgs['fetchData']>
       >(url)
 
+      console.log('fetch')
       console.log(url)
-      if (Array.isArray(result)) {
+      if (!result) {
+        throw new Error(
+          `No successful whishlist fetch for ${arg.steamProfileId}`
+        )
+      } else if (Array.isArray(result)) {
         return [] as Awaited<ReturnType<SteamWishListArgs['fetchData']>>
-      }
-
-      if (!Array.isArray(result)) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+      } else {
+        //(!Array.isArray(result))
         return {
           ...result,
           ...(await fetchSteamWhishList(arg, page + 1))
         }
       }
-      if (!result) {
-        throw new Error(
-          `No successful whishlist fetch for ${arg.steamProfileId}`
-        )
-      }
-      return result
     }
 
     const e = await fetchSteamWishList({
@@ -43,7 +44,25 @@ async function run(): Promise<void> {
       readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
 
-    console.log(e)
+    const e2 = await fetchProductIdFromSteamProduct({
+      fetchData: async productName => {
+        const client = new HttpClient()
+        const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
+        const result = await (await client.get(url)).readBody()
+        const document = parse(result)
+        const productId =
+          document.querySelector('[data-product-id]')?.attributes[
+            'data-product-id'
+          ]
+        if (!productId) {
+          throw new Error('unknown product')
+        }
+        return productId
+      },
+      readInput: () => ['the-last-spell']
+    })
+
+    console.log(e2)
 
     // const entries = await fetchSalesDataFromProductId({
     //   fetchData: async ({productId}) => {

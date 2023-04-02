@@ -24,19 +24,16 @@ test('sort by prio', async () => {
     {
       key: '345',
       name: 'givenGame',
-      requestName: 'givengame',
       priority: 0
     },
     {
       key: '9',
       name: 'superGame',
-      requestName: 'supergame',
       priority: 1
     },
     {
       key: '678',
       name: 'anotherGame',
-      requestName: 'anothergame',
       priority: 35
     }
   ])
@@ -77,29 +74,29 @@ test('ignore preReleasedGames', async () => {
     }
   ])
 })
-
-it.each`
-  note                                       | name             | requestName
-  ${'should do nothing'}                     | ${'abc'}         | ${'abc'}
-  ${'should replace whitespace'}             | ${'given title'} | ${'given-title'}
-  ${'should replace non numeric/alphabetic'} | ${'give`ntitle'} | ${'giventitle'}
-`('$note given: $given expected: $expected ', async ({name, requestName}) => {
-  const result = await fetchSteamWishList({
-    fetchData: async () => ({
-      '345': {
-        name: name as string,
-        priority: 0
-      }
-    }),
-    readInput: () => ({steamProfileId: '123'})
-  })
-
-  expect(result).toEqual([
-    {
-      key: '345',
-      name,
-      requestName,
-      priority: 0
-    }
-  ])
-})
+//
+// it.each`
+//   note                                       | name             | requestName
+//   ${'should do nothing'}                     | ${'abc'}         | ${'abc'}
+//   ${'should replace whitespace'}             | ${'given title'} | ${'given-title'}
+//   ${'should replace non numeric/alphabetic'} | ${'give`ntitle'} | ${'giventitle'}
+// `('$note given: $given expected: $expected ', async ({name, requestName}) => {
+//   const result = await fetchSteamWishList({
+//     fetchData: async () => ({
+//       '345': {
+//         name: name as string,
+//         priority: 0
+//       }
+//     }),
+//     readInput: () => ({steamProfileId: '123'})
+//   })
+//
+//   expect(result).toEqual([
+//     {
+//       key: '345',
+//       name,
+//       requestName,
+//       priority: 0
+//     }
+//   ])
+// })

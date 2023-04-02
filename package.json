@@ -26,7 +26,8 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "@actions/http-client": "^2.1.0"
+    "@actions/http-client": "^2.1.0",
+    "node-html-parser": "^6.1.5"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
