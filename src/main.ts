@@ -46,6 +46,11 @@ async function run(): Promise<void> {
     })
     console.log(whishList)
 
+    const withRss = whishList.map(i => ({
+      ...i,
+      rss: `https://steamcommunity.com/games/${i.key}/rss`
+    }))
+
     const withProductId = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
         const client = new HttpClient()
@@ -65,7 +70,7 @@ async function run(): Promise<void> {
         return productId
       },
       // readInput: () => ['the-last-spell']
-      readInput: () => whishList
+      readInput: () => withRss
     })
 
     console.log(withProductId)

@@ -162,6 +162,7 @@ function run() {
                 readInput: () => ({ steamProfileId: core.getInput('profileId') })
             });
             console.log(whishList);
+            const withRss = whishList.map(i => (Object.assign(Object.assign({}, i), { rss: `https://steamcommunity.com/games/${i.key}/rss` })));
             const withProductId = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
                 fetchData: (productName) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
@@ -179,7 +180,7 @@ function run() {
                     return productId;
                 }),
                 // readInput: () => ['the-last-spell']
-                readInput: () => whishList
+                readInput: () => withRss
             });
             console.log(withProductId);
             const withPrice = yield (0, fetchSalesDataFromProductId_1.fetchSalesDataFromProductId)({
