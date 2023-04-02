@@ -17,6 +17,7 @@ async function run(): Promise<void> {
         ReturnType<SteamWishListArgs['fetchData']>
       >(url)
 
+      console.log(url)
       if (Array.isArray(result)) {
         return [] as Awaited<ReturnType<SteamWishListArgs['fetchData']>>
       }
@@ -42,7 +43,6 @@ async function run(): Promise<void> {
       readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
 
-    // eslint-disable-next-line no-console
     console.log(e)
 
     // const entries = await fetchSalesDataFromProductId({
@@ -64,6 +64,7 @@ async function run(): Promise<void> {
     // core.setOutput('tsv', toTsv(['label', 'price', 'url'], entries))
     // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
   } catch (error) {
+    console.log(error)
     if (error instanceof Error) core.setFailed(error.message)
   }
 }
