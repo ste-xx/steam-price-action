@@ -10,6 +10,8 @@ Collects the current prices [G2A](https://g2a.com/) prices from [allkeyshop](htt
      profileId: <SteamProfileId>
    id: price
 ```
+**Your profile must be public**
+
 
 Use the outputs further in the action.
 ```yaml
