@@ -34,6 +34,38 @@ exports.fetchProductIdFromSteamProduct = fetchProductIdFromSteamProduct;
 
 /***/ }),
 
+/***/ 8028:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.fetchSalesDataFromProductId = void 0;
+const addArg = (fn) => (arg) => __awaiter(void 0, void 0, void 0, function* () { return [yield fn(arg), arg]; });
+const fetchSalesDataFromProductId = (args) => __awaiter(void 0, void 0, void 0, function* () {
+    const fetchDataWithArgs = addArg(args.fetchData);
+    const responseInputTuples = yield Promise.all(args.readInput().map(fetchDataWithArgs));
+    return responseInputTuples.map(([response, input]) => {
+        var _a, _b, _c;
+        const MERCHANT_G2A = '61';
+        const offer = response.offers.find(o => o.merchant === MERCHANT_G2A && o.platform === 'steam');
+        return Object.assign(Object.assign({}, input), { price: (_b = (_a = offer === null || offer === void 0 ? void 0 : offer.price.eur.priceWithoutCoupon) !== null && _a !== void 0 ? _a : offer === null || offer === void 0 ? void 0 : offer.price.eur.price) !== null && _b !== void 0 ? _b : -1, url: (_c = offer === null || offer === void 0 ? void 0 : offer.affiliateUrl) !== null && _c !== void 0 ? _c : '-' });
+    });
+});
+exports.fetchSalesDataFromProductId = fetchSalesDataFromProductId;
+
+
+/***/ }),
+
 /***/ 9346:
 /***/ (function(__unused_webpack_module, exports) {
 
@@ -104,6 +136,7 @@ const fetchSteamWishList_1 = __nccwpck_require__(9346);
 const http_client_1 = __nccwpck_require__(6255);
 const node_html_parser_1 = __nccwpck_require__(4363);
 const fetchProductIdFromSteamProduct_1 = __nccwpck_require__(3406);
+const fetchSalesDataFromProductId_1 = __nccwpck_require__(8028);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -129,7 +162,7 @@ function run() {
                 readInput: () => ({ steamProfileId: core.getInput('profileId') })
             });
             console.log(whishList);
-            const e2 = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
+            const withProductId = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
                 fetchData: (productName) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
                     const client = new http_client_1.HttpClient();
@@ -148,23 +181,22 @@ function run() {
                 // readInput: () => ['the-last-spell']
                 readInput: () => whishList
             });
-            console.log(e2);
-            // const entries = await fetchSalesDataFromProductId({
-            //   fetchData: async ({productId}) => {
-            //     const client = new HttpClient()
-            //     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
-            //     const {result} = await client.getJson<ReturnType<Args['fetchData']>>(
-            //       url
-            //     )
-            //
-            //     if (!result) {
-            //       throw new Error(`No successful fetch for ${productId}`)
-            //     }
-            //     return result
-            //   },
-            //   readInput: () => JSON.parse(core.getInput('input'))
-            // })
-            //
+            console.log(withProductId);
+            const withPrice = yield (0, fetchSalesDataFromProductId_1.fetchSalesDataFromProductId)({
+                fetchData: ({ productId }) => __awaiter(this, void 0, void 0, function* () {
+                    const client = new http_client_1.HttpClient();
+                    const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
+                    console.log('fetch');
+                    console.log(url);
+                    const { result } = yield client.getJson(url);
+                    if (!result) {
+                        throw new Error(`No successful fetch for ${productId}`);
+                    }
+                    return result;
+                }),
+                readInput: () => withProductId
+            });
+            console.log(withPrice);
             // core.setOutput('tsv', toTsv(['label', 'price', 'url'], entries))
             // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
         }

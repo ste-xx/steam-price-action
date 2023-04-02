@@ -1,6 +1,5 @@
 type Input = {
   productId: string
-  label: string
 }[]
 
 interface FetchResponse {
@@ -18,7 +17,7 @@ interface FetchResponse {
   }[]
 }
 
-type Entry = [label: string, price: number, url: string]
+type Entry = Input[number] & {price: number; url: string}
 
 export interface Args {
   readInput: () => Input
@@ -44,10 +43,11 @@ export const fetchSalesDataFromProductId = async (
     const offer = response.offers.find(
       o => o.merchant === MERCHANT_G2A && o.platform === 'steam'
     )
-    return [
-      input.label,
-      offer?.price.eur.priceWithoutCoupon ?? offer?.price.eur.price ?? -1,
-      offer?.affiliateUrl ?? '-'
-    ]
+    return {
+      ...input,
+      price:
+        offer?.price.eur.priceWithoutCoupon ?? offer?.price.eur.price ?? -1,
+      url: offer?.affiliateUrl ?? '-'
+    }
   })
 }

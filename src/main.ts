@@ -6,6 +6,10 @@ import {
 import {HttpClient} from '@actions/http-client'
 import {parse} from 'node-html-parser'
 import {fetchProductIdFromSteamProduct} from './fetchProductIdFromSteamProduct'
+import {
+  Args as SalesDataFromProductIdArgs,
+  fetchSalesDataFromProductId
+} from './fetchSalesDataFromProductId'
 
 async function run(): Promise<void> {
   try {
@@ -42,7 +46,7 @@ async function run(): Promise<void> {
     })
     console.log(whishList)
 
-    const e2 = await fetchProductIdFromSteamProduct({
+    const withProductId = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
@@ -64,24 +68,28 @@ async function run(): Promise<void> {
       readInput: () => whishList
     })
 
-    console.log(e2)
+    console.log(withProductId)
 
-    // const entries = await fetchSalesDataFromProductId({
-    //   fetchData: async ({productId}) => {
-    //     const client = new HttpClient()
-    //     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
-    //     const {result} = await client.getJson<ReturnType<Args['fetchData']>>(
-    //       url
-    //     )
-    //
-    //     if (!result) {
-    //       throw new Error(`No successful fetch for ${productId}`)
-    //     }
-    //     return result
-    //   },
-    //   readInput: () => JSON.parse(core.getInput('input'))
-    // })
-    //
+    const withPrice = await fetchSalesDataFromProductId({
+      fetchData: async ({productId}) => {
+        const client = new HttpClient()
+        const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
+        console.log('fetch')
+        console.log(url)
+        const {result} = await client.getJson<
+          ReturnType<SalesDataFromProductIdArgs['fetchData']>
+        >(url)
+
+        if (!result) {
+          throw new Error(`No successful fetch for ${productId}`)
+        }
+        return result
+      },
+      readInput: () => withProductId
+    })
+
+    console.log(withPrice)
+
     // core.setOutput('tsv', toTsv(['label', 'price', 'url'], entries))
     // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
   } catch (error) {
