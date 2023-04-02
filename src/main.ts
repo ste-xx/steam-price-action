@@ -40,7 +40,7 @@ async function run(): Promise<void> {
       fetchData: fetchSteamWhishList,
       readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
-    console.log(e);
+    console.log(e)
 
     const e2 = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
