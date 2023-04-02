@@ -1,5 +1,5 @@
-import {expect, test} from "@jest/globals";
-import {toTsv} from "../src/toTsv";
+import {expect, test} from '@jest/globals'
+import {toTsv} from '../src/toTsv'
 
 test('toTsv', () => {
   expect(
@@ -14,4 +14,3 @@ test('toTsv', () => {
 given_label\t888\t<url_to_offer>
 another_label\t888\t<url_to_offer>`)
 })
-

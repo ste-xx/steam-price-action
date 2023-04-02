@@ -1,5 +1,5 @@
-import {expect, test} from "@jest/globals";
-import {toJSON} from "../src/toJson";
+import {expect, test} from '@jest/globals'
+import {toJSON} from '../src/toJson'
 
 test('toJson', () => {
   expect(
