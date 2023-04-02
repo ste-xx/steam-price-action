@@ -194,6 +194,7 @@ function run() {
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
                     yield wait(500 * iterate);
+                    console.log(iterate);
                     iterate += 1;
                     console.log('fetch');
                     console.log(url);

@@ -86,6 +86,7 @@ async function run(): Promise<void> {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
         await wait(500 * iterate)
+        console.log(iterate)
         iterate += 1
         console.log('fetch')
         console.log(url)
