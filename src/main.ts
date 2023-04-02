@@ -10,6 +10,7 @@ import {
   Args as SalesDataFromProductIdArgs,
   fetchSalesDataFromProductId
 } from './fetchSalesDataFromProductId'
+import {toTsv} from "./toTsv";
 
 async function run(): Promise<void> {
   try {
@@ -94,8 +95,13 @@ async function run(): Promise<void> {
     })
 
     console.log(withPrice)
+    const arr = withPrice.map(e => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return [e['name'], e.price, e.url, e['rss']]
+    })
 
-    // core.setOutput('tsv', toTsv(['label', 'price', 'url'], entries))
+    core.setOutput('tsv', toTsv(['label', 'price', 'url', 'rss'], arr))
     // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
   } catch (error) {
     console.log(error)
