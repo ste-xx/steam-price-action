@@ -18,8 +18,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fetchProductIdFromSteamProduct = void 0;
 const fetchProductIdFromSteamProduct = (args) => __awaiter(void 0, void 0, void 0, function* () {
-    return Promise.all(args.readInput().map((productName) => __awaiter(void 0, void 0, void 0, function* () {
-        return args.fetchData(productName);
+    return Promise.all(args
+        .readInput()
+        .map(input => (Object.assign(Object.assign({}, input), { requestName: input.name
+            .replaceAll(' ', '-')
+            .toLowerCase()
+            .replace(/[^a-z1-9-]/gi, '') })))
+        .map((input) => __awaiter(void 0, void 0, void 0, function* () {
+        const productId = yield args.fetchData(input.requestName);
+        return Object.assign(Object.assign({}, input), { productId });
     })));
 });
 exports.fetchProductIdFromSteamProduct = fetchProductIdFromSteamProduct;
@@ -117,11 +124,11 @@ function run() {
                     return Object.assign(Object.assign({}, result), (yield fetchSteamWhishList(arg, page + 1)));
                 }
             });
-            const e = yield (0, fetchSteamWishList_1.fetchSteamWishList)({
+            const whishList = yield (0, fetchSteamWishList_1.fetchSteamWishList)({
                 fetchData: fetchSteamWhishList,
                 readInput: () => ({ steamProfileId: core.getInput('profileId') })
             });
-            console.log(e);
+            console.log(whishList);
             const e2 = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
                 fetchData: (productName) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
@@ -136,10 +143,7 @@ function run() {
                     return productId;
                 }),
                 // readInput: () => ['the-last-spell']
-                readInput: () => e.map(({ name }) => name
-                    .replaceAll(' ', '-')
-                    .toLowerCase()
-                    .replace(/[^a-z1-9-]/gi, ''))
+                readInput: () => whishList
             });
             console.log(e2);
             // const entries = await fetchSalesDataFromProductId({

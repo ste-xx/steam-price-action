@@ -36,11 +36,11 @@ async function run(): Promise<void> {
       }
     }
 
-    const e = await fetchSteamWishList({
+    const whishList = await fetchSteamWishList({
       fetchData: fetchSteamWhishList,
       readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
-    console.log(e)
+    console.log(whishList)
 
     const e2 = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
@@ -58,13 +58,7 @@ async function run(): Promise<void> {
         return productId
       },
       // readInput: () => ['the-last-spell']
-      readInput: () =>
-        e.map(({name}) =>
-          name
-            .replaceAll(' ', '-')
-            .toLowerCase()
-            .replace(/[^a-z1-9-]/gi, '')
-        )
+      readInput: () => whishList
     })
 
     console.log(e2)

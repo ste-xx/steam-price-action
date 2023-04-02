@@ -1,18 +1,35 @@
-type SteamProductName = string
-type ProductId = string
-export interface Args {
-  readInput: () => SteamProductName[]
-  fetchData: (arg: SteamProductName[number]) => Promise<ProductId>
+interface Input {
+  name: string
+  key: string
 }
 
-type Result = ProductId[]
+type ProductId = string
+export interface Args {
+  readInput: () => Input[]
+  fetchData: (arg: Input['name']) => Promise<ProductId>
+}
+
+type Result = (Input & {productId: string})[]
 
 export const fetchProductIdFromSteamProduct = async (
   args: Args
 ): Promise<Result> => {
   return Promise.all(
-    args.readInput().map(async productName => {
-      return args.fetchData(productName)
-    })
+    args
+      .readInput()
+      .map(input => ({
+        ...input,
+        requestName: input.name
+          .replaceAll(' ', '-')
+          .toLowerCase()
+          .replace(/[^a-z1-9-]/gi, '')
+      }))
+      .map(async input => {
+        const productId = await args.fetchData(input.requestName)
+        return {
+          ...input,
+          productId
+        }
+      })
   )
 }
