@@ -49,6 +49,7 @@ async function run(): Promise<void> {
         console.log('fetch')
         console.log(url)
         const result = await (await client.get(url)).readBody()
+        console.log('fetched')
         const document = parse(result)
         const productId =
           document.querySelector('[data-product-id]')?.attributes[
