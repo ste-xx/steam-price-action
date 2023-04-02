@@ -134,6 +134,8 @@ function run() {
                     var _a;
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`;
+                    console.log('fetch');
+                    console.log(url);
                     const result = yield (yield client.get(url)).readBody();
                     const document = (0, node_html_parser_1.parse)(result);
                     const productId = (_a = document.querySelector('[data-product-id]')) === null || _a === void 0 ? void 0 : _a.attributes['data-product-id'];

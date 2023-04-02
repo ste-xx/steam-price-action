@@ -46,6 +46,8 @@ async function run(): Promise<void> {
       fetchData: async productName => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
+        console.log('fetch')
+        console.log(url)
         const result = await (await client.get(url)).readBody()
         const document = parse(result)
         const productId =
