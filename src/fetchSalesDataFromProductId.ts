@@ -23,7 +23,6 @@ type Entry = [label: string, price: number, url: string]
 export interface Args {
   readInput: () => Input
   fetchData: (input: Input[number]) => Promise<FetchResponse>
-  writeOutput: (header: ['label', 'price', 'link'], data: Entry[]) => void
 }
 
 const addArg =
@@ -31,14 +30,14 @@ const addArg =
   async (arg: T): Promise<[U, T]> =>
     [await fn(arg), arg]
 
-export const fetch = async (args: Args): Promise<void> => {
+export const fetchSalesDataFromProductId = async (args: Args): Promise<Entry[]> => {
   const fetchDataWithArgs = addArg(args.fetchData)
 
   const responseInputTuples = await Promise.all(
     args.readInput().map(fetchDataWithArgs)
   )
 
-  const result = responseInputTuples.map(([response, input]): Entry => {
+  return responseInputTuples.map(([response, input]): Entry => {
     const MERCHANT_G2A = '61'
     const offer = response.offers.find(
       o => o.merchant === MERCHANT_G2A && o.platform === 'steam'
@@ -49,27 +48,4 @@ export const fetch = async (args: Args): Promise<void> => {
       offer?.affiliateUrl ?? '-'
     ]
   })
-
-  args.writeOutput(['label', 'price', 'link'], result)
-}
-
-export const toTsv = (
-  header: ['label', 'price', 'link'],
-  data: Entry[]
-): string => {
-  const rows = data.map(e => e.join('\t'))
-  return [header.join('\t'), ...rows].join('\n')
-}
-
-export const toJSON = (
-  header: ['label', 'price', 'link'],
-  data: Entry[]
-): string => {
-  const rows = Object.fromEntries(
-    data.map(([label, price, url]) => [
-      label,
-      {[header[1]]: price, [header[2]]: url}
-    ])
-  )
-  return JSON.stringify(rows, null, 2)
 }

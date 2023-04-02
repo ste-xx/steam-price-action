@@ -1,12 +1,12 @@
 name: 'steam-price-action'
-description: 'Fetches prices for steam products from key reseller (G2A.com)'
+description: 'Fetches prices for steam whishlist items from key reseller (G2A.com)'
 author: 'Stefan Breitenstein'
 branding:
   icon: activity
   color: purple
 inputs:
-  input:
-    description: 'given json like described in the schema.json'
+  profileId:
+    description: 'given steam profile id'
     required: true
 outputs:
   tsv:
