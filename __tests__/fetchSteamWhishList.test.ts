@@ -63,13 +63,11 @@ test('ignore preReleasedGames', async () => {
     {
       key: '9',
       name: 'superGame',
-      requestName: 'supergame',
       priority: 1
     },
     {
       key: '678',
       name: 'anotherGame',
-      requestName: 'anothergame',
       priority: 35
     }
   ])

@@ -47,12 +47,7 @@ const fetchSteamWishList = (args) => __awaiter(void 0, void 0, void 0, function*
     const response = yield args.fetchData(args.readInput());
     const wlList = Object.entries(response).map(([key, value]) => (Object.assign({ key }, value)));
     wlList.sort((a, b) => a.priority - b.priority);
-    return wlList
-        .filter(e => e.prerelease === undefined)
-        .map(e => (Object.assign(Object.assign({}, e), { requestName: e.name
-            .replaceAll(' ', '-')
-            .toLowerCase()
-            .replace(/[^a-z1-9-]/gi, '') })));
+    return wlList.filter(e => e.prerelease === undefined);
 });
 exports.fetchSteamWishList = fetchSteamWishList;
 
@@ -140,7 +135,11 @@ function run() {
                     }
                     return productId;
                 }),
-                readInput: () => ['the-last-spell']
+                // readInput: () => ['the-last-spell']
+                readInput: () => e.map(({ name }) => name
+                    .replaceAll(' ', '-')
+                    .toLowerCase()
+                    .replace(/[^a-z1-9-]/gi, ''))
             });
             console.log(e2);
             // const entries = await fetchSalesDataFromProductId({

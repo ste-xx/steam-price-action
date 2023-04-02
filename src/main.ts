@@ -57,7 +57,14 @@ async function run(): Promise<void> {
         }
         return productId
       },
-      readInput: () => ['the-last-spell']
+      // readInput: () => ['the-last-spell']
+      readInput: () =>
+        e.map(({name}) =>
+          name
+            .replaceAll(' ', '-')
+            .toLowerCase()
+            .replace(/[^a-z1-9-]/gi, '')
+        )
     })
 
     console.log(e2)
