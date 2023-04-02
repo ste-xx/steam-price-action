@@ -64,7 +64,7 @@ async function run(): Promise<void> {
         const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
         console.log('fetch')
         console.log(url)
-        await wait(500 * iterateForProductId)
+        await wait(2000 * iterateForProductId)
         console.log(iterateForProductId)
         iterateForProductId += 1
 

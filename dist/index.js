@@ -176,7 +176,7 @@ function run() {
                     const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`;
                     console.log('fetch');
                     console.log(url);
-                    yield wait(500 * iterateForProductId);
+                    yield wait(2000 * iterateForProductId);
                     console.log(iterateForProductId);
                     iterateForProductId += 1;
                     const result = yield (yield client.get(url)).readBody();
