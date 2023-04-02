@@ -137,6 +137,7 @@ const http_client_1 = __nccwpck_require__(6255);
 const node_html_parser_1 = __nccwpck_require__(4363);
 const fetchProductIdFromSteamProduct_1 = __nccwpck_require__(3406);
 const fetchSalesDataFromProductId_1 = __nccwpck_require__(8028);
+const toTsv_1 = __nccwpck_require__(3746);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -198,7 +199,12 @@ function run() {
                 readInput: () => withProductId
             });
             console.log(withPrice);
-            // core.setOutput('tsv', toTsv(['label', 'price', 'url'], entries))
+            const arr = withPrice.map(e => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                return [e['name'], e.price, e.url, e['rss']];
+            });
+            core.setOutput('tsv', (0, toTsv_1.toTsv)(['label', 'price', 'url', 'rss'], arr));
             // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
         }
         catch (error) {
@@ -209,6 +215,22 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 3746:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toTsv = void 0;
+const toTsv = (header, data) => {
+    const rows = data.map(e => e.join('\t'));
+    return [header.join('\t'), ...rows].join('\n');
+};
+exports.toTsv = toTsv;
 
 
 /***/ }),

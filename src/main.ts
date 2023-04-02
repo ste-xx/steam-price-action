@@ -10,7 +10,8 @@ import {
   Args as SalesDataFromProductIdArgs,
   fetchSalesDataFromProductId
 } from './fetchSalesDataFromProductId'
-import {toTsv} from "./toTsv";
+import {toTsv} from './toTsv'
+import {toJSON} from "./toJson";
 
 async function run(): Promise<void> {
   try {
@@ -102,7 +103,7 @@ async function run(): Promise<void> {
     })
 
     core.setOutput('tsv', toTsv(['label', 'price', 'url', 'rss'], arr))
-    // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
+    core.setOutput('json', toJSON(['label', 'price', 'url', 'rss'], arr))
   } catch (error) {
     console.log(error)
     if (error instanceof Error) core.setFailed(error.message)
