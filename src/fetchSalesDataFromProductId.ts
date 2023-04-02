@@ -30,7 +30,9 @@ const addArg =
   async (arg: T): Promise<[U, T]> =>
     [await fn(arg), arg]
 
-export const fetchSalesDataFromProductId = async (args: Args): Promise<Entry[]> => {
+export const fetchSalesDataFromProductId = async (
+  args: Args
+): Promise<Entry[]> => {
   const fetchDataWithArgs = addArg(args.fetchData)
 
   const responseInputTuples = await Promise.all(

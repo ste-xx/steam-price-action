@@ -1,12 +1,9 @@
 import * as core from '@actions/core'
-import {Args, fetchSalesDataFromProductId} from './fetchSalesDataFromProductId'
 import {
   Args as SteamWishListArgs,
   fetchSteamWishList
 } from './fetchSteamWishList'
 import {HttpClient} from '@actions/http-client'
-import {toJSON} from './toJson'
-import {toTsv} from './toTsv'
 
 async function run(): Promise<void> {
   try {
@@ -42,10 +39,11 @@ async function run(): Promise<void> {
 
     const e = await fetchSteamWishList({
       fetchData: fetchSteamWhishList,
-      readInput: () => ({steamProfileId: process.env.STEAM_PROFILE_ID!})
+      readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
 
-    console.log(e);
+    // eslint-disable-next-line no-console
+    console.log(e)
 
     // const entries = await fetchSalesDataFromProductId({
     //   fetchData: async ({productId}) => {

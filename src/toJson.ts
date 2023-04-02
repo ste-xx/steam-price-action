@@ -1,9 +1,6 @@
 type Row = (string | number)[]
 
-export const toJSON = (
-  header: string[],
-  data: Row[]
-): string => {
+export const toJSON = (header: string[], data: Row[]): string => {
   const rows = Object.fromEntries(
     data.map(([label, price, url]) => [
       label,
