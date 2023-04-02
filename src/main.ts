@@ -5,10 +5,7 @@ import {
 } from './fetchSteamWishList'
 import {HttpClient} from '@actions/http-client'
 import {parse} from 'node-html-parser'
-import {
-  Args as FetchProductIdArgs,
-  fetchProductIdFromSteamProduct
-} from './fetchProductIdFromSteamProduct'
+import {fetchProductIdFromSteamProduct} from './fetchProductIdFromSteamProduct'
 
 async function run(): Promise<void> {
   try {
@@ -43,6 +40,7 @@ async function run(): Promise<void> {
       fetchData: fetchSteamWhishList,
       readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
+    console.log(e);
 
     const e2 = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
