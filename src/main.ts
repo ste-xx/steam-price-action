@@ -11,7 +11,7 @@ import {
   fetchSalesDataFromProductId
 } from './fetchSalesDataFromProductId'
 import {toTsv} from './toTsv'
-import {toJSON} from "./toJson";
+import {toJSON} from './toJson'
 
 async function run(): Promise<void> {
   try {
@@ -77,12 +77,19 @@ async function run(): Promise<void> {
 
     console.log(withProductId)
 
+    const wait = async (ms: number): Promise<unknown> => {
+      return new Promise(resolve => setTimeout(() => resolve(undefined), ms))
+    }
+    let iterate = 0
     const withPrice = await fetchSalesDataFromProductId({
       fetchData: async ({productId}) => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
+        await wait(500 * iterate)
+        iterate += 1
         console.log('fetch')
         console.log(url)
+
         const {result} = await client.getJson<
           ReturnType<SalesDataFromProductIdArgs['fetchData']>
         >(url)

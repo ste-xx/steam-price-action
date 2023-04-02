@@ -138,6 +138,7 @@ const node_html_parser_1 = __nccwpck_require__(4363);
 const fetchProductIdFromSteamProduct_1 = __nccwpck_require__(3406);
 const fetchSalesDataFromProductId_1 = __nccwpck_require__(8028);
 const toTsv_1 = __nccwpck_require__(3746);
+const toJson_1 = __nccwpck_require__(8785);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -184,10 +185,16 @@ function run() {
                 readInput: () => withRss
             });
             console.log(withProductId);
+            const wait = (ms) => __awaiter(this, void 0, void 0, function* () {
+                return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
+            });
+            let iterate = 0;
             const withPrice = yield (0, fetchSalesDataFromProductId_1.fetchSalesDataFromProductId)({
                 fetchData: ({ productId }) => __awaiter(this, void 0, void 0, function* () {
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
+                    yield wait(500 * iterate);
+                    iterate += 1;
                     console.log('fetch');
                     console.log(url);
                     const { result } = yield client.getJson(url);
@@ -205,7 +212,7 @@ function run() {
                 return [e['name'], e.price, e.url, e['rss']];
             });
             core.setOutput('tsv', (0, toTsv_1.toTsv)(['label', 'price', 'url', 'rss'], arr));
-            // core.setOutput('json', toJSON(['label', 'price', 'url'], entries))
+            core.setOutput('json', (0, toJson_1.toJSON)(['label', 'price', 'url', 'rss'], arr));
         }
         catch (error) {
             console.log(error);
@@ -215,6 +222,25 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 8785:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toJSON = void 0;
+const toJSON = (header, data) => {
+    const rows = Object.fromEntries(data.map(([label, price, url]) => [
+        label,
+        { [header[1]]: price, [header[2]]: url }
+    ]));
+    return JSON.stringify(rows, null, 2);
+};
+exports.toJSON = toJSON;
 
 
 /***/ }),
