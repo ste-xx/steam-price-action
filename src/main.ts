@@ -53,12 +53,21 @@ async function run(): Promise<void> {
       rss: `https://steamcommunity.com/games/${i.key}/rss`
     }))
 
+    const wait = async (ms: number): Promise<unknown> => {
+      return new Promise(resolve => setTimeout(() => resolve(undefined), ms))
+    }
+
+    let iterateForProductId = 0
     const withProductId = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
         console.log('fetch')
         console.log(url)
+        await wait(500 * iterateForProductId)
+        console.log(iterateForProductId)
+        iterateForProductId += 1
+
         const result = await (await client.get(url)).readBody()
         console.log('fetched')
         const document = parse(result)
@@ -77,17 +86,14 @@ async function run(): Promise<void> {
 
     console.log(withProductId)
 
-    const wait = async (ms: number): Promise<unknown> => {
-      return new Promise(resolve => setTimeout(() => resolve(undefined), ms))
-    }
-    let iterate = 0
+    let iterateForPrice = 0
     const withPrice = await fetchSalesDataFromProductId({
       fetchData: async ({productId}) => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
-        await wait(500 * iterate)
-        console.log(iterate)
-        iterate += 1
+        await wait(500 * iterateForPrice)
+        console.log(iterateForPrice)
+        iterateForPrice += 1
         console.log('fetch')
         console.log(url)
 

@@ -165,6 +165,10 @@ function run() {
             });
             console.log(whishList);
             const withRss = whishList.map(i => (Object.assign(Object.assign({}, i), { rss: `https://steamcommunity.com/games/${i.key}/rss` })));
+            const wait = (ms) => __awaiter(this, void 0, void 0, function* () {
+                return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
+            });
+            let iterateForProductId = 0;
             const withProductId = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
                 fetchData: (productName) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
@@ -172,6 +176,9 @@ function run() {
                     const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`;
                     console.log('fetch');
                     console.log(url);
+                    yield wait(500 * iterateForProductId);
+                    console.log(iterateForProductId);
+                    iterateForProductId += 1;
                     const result = yield (yield client.get(url)).readBody();
                     console.log('fetched');
                     const document = (0, node_html_parser_1.parse)(result);
@@ -185,17 +192,14 @@ function run() {
                 readInput: () => withRss
             });
             console.log(withProductId);
-            const wait = (ms) => __awaiter(this, void 0, void 0, function* () {
-                return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
-            });
-            let iterate = 0;
+            let iterateForPrice = 0;
             const withPrice = yield (0, fetchSalesDataFromProductId_1.fetchSalesDataFromProductId)({
                 fetchData: ({ productId }) => __awaiter(this, void 0, void 0, function* () {
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
-                    yield wait(500 * iterate);
-                    console.log(iterate);
-                    iterate += 1;
+                    yield wait(500 * iterateForPrice);
+                    console.log(iterateForPrice);
+                    iterateForPrice += 1;
                     console.log('fetch');
                     console.log(url);
                     const { result } = yield client.getJson(url);
