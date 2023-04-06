@@ -176,9 +176,9 @@ function run() {
                     const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`;
                     console.log('fetch');
                     console.log(url);
-                    yield wait(2000 * iterateForProductId);
-                    console.log(iterateForProductId);
                     iterateForProductId += 1;
+                    yield wait(2000 * iterateForProductId);
+                    console.log(new Date());
                     const result = yield (yield client.get(url)).readBody();
                     console.log('fetched');
                     const document = (0, node_html_parser_1.parse)(result);
@@ -197,11 +197,12 @@ function run() {
                 fetchData: ({ productId }) => __awaiter(this, void 0, void 0, function* () {
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
-                    yield wait(500 * iterateForPrice);
                     console.log(iterateForPrice);
                     iterateForPrice += 1;
+                    yield wait(2000 * iterateForPrice);
                     console.log('fetch');
                     console.log(url);
+                    console.log(new Date());
                     const { result } = yield client.getJson(url);
                     if (!result) {
                         throw new Error(`No successful fetch for ${productId}`);

@@ -64,9 +64,9 @@ async function run(): Promise<void> {
         const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
         console.log('fetch')
         console.log(url)
-        await wait(2000 * iterateForProductId)
-        console.log(iterateForProductId)
         iterateForProductId += 1
+        await wait(2000 * iterateForProductId)
+        console.log(new Date());
 
         const result = await (await client.get(url)).readBody()
         console.log('fetched')
@@ -91,11 +91,12 @@ async function run(): Promise<void> {
       fetchData: async ({productId}) => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
-        await wait(500 * iterateForPrice)
         console.log(iterateForPrice)
         iterateForPrice += 1
+        await wait(2000 * iterateForPrice)
         console.log('fetch')
         console.log(url)
+        console.log(new Date());
 
         const {result} = await client.getJson<
           ReturnType<SalesDataFromProductIdArgs['fetchData']>
