@@ -176,6 +176,7 @@ function run() {
                 // eslint-disable-next-line github/no-then
                 return fn().catch((e) => __awaiter(this, void 0, void 0, function* () {
                     console.log(e);
+                    console.log('###');
                     yield wait(2000 * current);
                     return withRetryDelay(Object.assign(Object.assign({}, withRetryParam), { current: withRetryParam.current + 1 }));
                 }));

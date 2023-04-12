@@ -73,6 +73,7 @@ async function run(): Promise<void> {
       // eslint-disable-next-line github/no-then
       return fn().catch(async e => {
         console.log(e)
+        console.log('###')
         await wait(2000 * current)
         return withRetryDelay({
           ...withRetryParam,
