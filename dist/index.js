@@ -190,7 +190,7 @@ function run() {
                     const response = yield withRetryDelay({
                         fn: () => __awaiter(this, void 0, void 0, function* () { return client.get(url); }),
                         max: 10,
-                        delayFn: ({ current }) => __awaiter(this, void 0, void 0, function* () { return wait(2000 * current); }),
+                        delayFn: ({ current }) => __awaiter(this, void 0, void 0, function* () { return wait(500 * current); }),
                         current: 0
                     });
                     const html = yield response.readBody();
@@ -214,7 +214,7 @@ function run() {
                             return client.getJson(url);
                         }),
                         max: 10,
-                        delayFn: ({ current }) => __awaiter(this, void 0, void 0, function* () { return wait(2000 * current); }),
+                        delayFn: ({ current }) => __awaiter(this, void 0, void 0, function* () { return wait(500 * current); }),
                         current: 0
                     });
                     if (!result) {
@@ -232,7 +232,7 @@ function run() {
             });
             core.setOutput('tsv', (0, toTsv_1.toTsv)(['label', 'price', 'url', 'rss'], arr));
             core.setOutput('json', (0, toJson_1.toJSON)(['label', 'price', 'url', 'rss'], arr));
-            core.setOutput('rawJson', JSON.stringify(arr, null, 2));
+            core.setOutput('rawJson', JSON.stringify(withPrice, null, 2));
         }
         catch (error) {
             console.log(error);
