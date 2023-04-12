@@ -57,20 +57,42 @@ async function run(): Promise<void> {
       return new Promise(resolve => setTimeout(() => resolve(undefined), ms))
     }
 
-    let iterateForProductId = 0
+    interface WithRetryDelayParam<T> {
+      fn: () => Promise<T>
+      max: number
+      current: number
+    }
+
+    const withRetryDelay = async <T>(
+      withRetryParam: WithRetryDelayParam<T>
+    ): Promise<T> => {
+      const {fn, max, current} = withRetryParam
+      if (max >= current) {
+        return Promise.reject(new Error(`failed with ${max} retries`))
+      }
+      // eslint-disable-next-line github/no-then
+      return fn().catch(async e => {
+        console.log(e)
+        await wait(2000 * current)
+        return withRetryDelay({
+          ...withRetryParam,
+
+          current: withRetryParam.current + 1
+        })
+      })
+    }
+
     const withProductId = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`
-        console.log('fetch')
-        console.log(url)
-        await wait(2000 * iterateForProductId)
-        console.log(iterateForProductId)
-        iterateForProductId += 1
-
-        const result = await (await client.get(url)).readBody()
-        console.log('fetched')
-        const document = parse(result)
+        const response = await withRetryDelay({
+          fn: async () => client.get(url),
+          max: 10,
+          current: 0
+        })
+        const html = await response.readBody()
+        const document = parse(html)
         const productId =
           document.querySelector('[data-product-id]')?.attributes[
             'data-product-id'

@@ -168,20 +168,30 @@ function run() {
             const wait = (ms) => __awaiter(this, void 0, void 0, function* () {
                 return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
             });
-            let iterateForProductId = 0;
+            const withRetryDelay = (withRetryParam) => __awaiter(this, void 0, void 0, function* () {
+                const { fn, max, current } = withRetryParam;
+                if (max >= current) {
+                    return Promise.reject(new Error(`failed with ${max} retries`));
+                }
+                // eslint-disable-next-line github/no-then
+                return fn().catch((e) => __awaiter(this, void 0, void 0, function* () {
+                    console.log(e);
+                    yield wait(2000 * current);
+                    return withRetryDelay(Object.assign(Object.assign({}, withRetryParam), { current: withRetryParam.current + 1 }));
+                }));
+            });
             const withProductId = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
                 fetchData: (productName) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/buy-${productName}-cd-key-compare-prices/`;
-                    console.log('fetch');
-                    console.log(url);
-                    yield wait(2000 * iterateForProductId);
-                    console.log(iterateForProductId);
-                    iterateForProductId += 1;
-                    const result = yield (yield client.get(url)).readBody();
-                    console.log('fetched');
-                    const document = (0, node_html_parser_1.parse)(result);
+                    const response = yield withRetryDelay({
+                        fn: () => __awaiter(this, void 0, void 0, function* () { return client.get(url); }),
+                        max: 10,
+                        current: 0
+                    });
+                    const html = yield response.readBody();
+                    const document = (0, node_html_parser_1.parse)(html);
                     const productId = (_a = document.querySelector('[data-product-id]')) === null || _a === void 0 ? void 0 : _a.attributes['data-product-id'];
                     if (!productId) {
                         throw new Error('unknown product');
