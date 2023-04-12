@@ -67,7 +67,8 @@ async function run(): Promise<void> {
       withRetryParam: WithRetryDelayParam<T>
     ): Promise<T> => {
       const {fn, max, current} = withRetryParam
-      if (max >= current) {
+      console.log(`retry ${current}`)
+      if (current >= max) {
         return Promise.reject(new Error(`failed with ${max} retries`))
       }
       // eslint-disable-next-line github/no-then
@@ -77,7 +78,6 @@ async function run(): Promise<void> {
         await wait(2000 * current)
         return withRetryDelay({
           ...withRetryParam,
-
           current: withRetryParam.current + 1
         })
       })

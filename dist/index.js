@@ -170,7 +170,8 @@ function run() {
             });
             const withRetryDelay = (withRetryParam) => __awaiter(this, void 0, void 0, function* () {
                 const { fn, max, current } = withRetryParam;
-                if (max >= current) {
+                console.log(`retry ${current}`);
+                if (current >= max) {
                     return Promise.reject(new Error(`failed with ${max} retries`));
                 }
                 // eslint-disable-next-line github/no-then
