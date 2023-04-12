@@ -61,12 +61,13 @@ async function run(): Promise<void> {
       fn: () => Promise<T>
       max: number
       current: number
+      delayFn: (params: {current: number}) => Promise<unknown>
     }
 
     const withRetryDelay = async <T>(
       withRetryParam: WithRetryDelayParam<T>
     ): Promise<T> => {
-      const {fn, max, current} = withRetryParam
+      const {fn, max, current, delayFn} = withRetryParam
       console.log(`retry ${current}`)
       if (current >= max) {
         return Promise.reject(new Error(`failed with ${max} retries`))
@@ -75,7 +76,7 @@ async function run(): Promise<void> {
       return fn().catch(async e => {
         console.log(e)
         console.log('###')
-        await wait(2000 * current)
+        await delayFn({current})
         return withRetryDelay({
           ...withRetryParam,
           current: withRetryParam.current + 1
@@ -90,6 +91,7 @@ async function run(): Promise<void> {
         const response = await withRetryDelay({
           fn: async () => client.get(url),
           max: 10,
+          delayFn: async ({current}) => wait(2000 * current),
           current: 0
         })
         const html = await response.readBody()
@@ -109,20 +111,20 @@ async function run(): Promise<void> {
 
     console.log(withProductId)
 
-    let iterateForPrice = 0
     const withPrice = await fetchSalesDataFromProductId({
       fetchData: async ({productId}) => {
         const client = new HttpClient()
         const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`
-        await wait(500 * iterateForPrice)
-        console.log(iterateForPrice)
-        iterateForPrice += 1
-        console.log('fetch')
-        console.log(url)
 
-        const {result} = await client.getJson<
-          ReturnType<SalesDataFromProductIdArgs['fetchData']>
-        >(url)
+        const {result} = await withRetryDelay({
+          fn: async () =>
+            client.getJson<ReturnType<SalesDataFromProductIdArgs['fetchData']>>(
+              url
+            ),
+          max: 10,
+          delayFn: async ({current}) => wait(2000 * current),
+          current: 0
+        })
 
         if (!result) {
           throw new Error(`No successful fetch for ${productId}`)

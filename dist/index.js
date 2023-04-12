@@ -169,7 +169,7 @@ function run() {
                 return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
             });
             const withRetryDelay = (withRetryParam) => __awaiter(this, void 0, void 0, function* () {
-                const { fn, max, current } = withRetryParam;
+                const { fn, max, current, delayFn } = withRetryParam;
                 console.log(`retry ${current}`);
                 if (current >= max) {
                     return Promise.reject(new Error(`failed with ${max} retries`));
@@ -178,7 +178,7 @@ function run() {
                 return fn().catch((e) => __awaiter(this, void 0, void 0, function* () {
                     console.log(e);
                     console.log('###');
-                    yield wait(2000 * current);
+                    yield delayFn({ current });
                     return withRetryDelay(Object.assign(Object.assign({}, withRetryParam), { current: withRetryParam.current + 1 }));
                 }));
             });
@@ -190,6 +190,7 @@ function run() {
                     const response = yield withRetryDelay({
                         fn: () => __awaiter(this, void 0, void 0, function* () { return client.get(url); }),
                         max: 10,
+                        delayFn: ({ current }) => __awaiter(this, void 0, void 0, function* () { return wait(2000 * current); }),
                         current: 0
                     });
                     const html = yield response.readBody();
@@ -204,17 +205,18 @@ function run() {
                 readInput: () => withRss
             });
             console.log(withProductId);
-            let iterateForPrice = 0;
             const withPrice = yield (0, fetchSalesDataFromProductId_1.fetchSalesDataFromProductId)({
                 fetchData: ({ productId }) => __awaiter(this, void 0, void 0, function* () {
                     const client = new http_client_1.HttpClient();
                     const url = `https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php?action=get_offers&product=${productId}&currency=eur&region=&edition=&moreq=&use_beta_offers_display=1`;
-                    yield wait(500 * iterateForPrice);
-                    console.log(iterateForPrice);
-                    iterateForPrice += 1;
-                    console.log('fetch');
-                    console.log(url);
-                    const { result } = yield client.getJson(url);
+                    const { result } = yield withRetryDelay({
+                        fn: () => __awaiter(this, void 0, void 0, function* () {
+                            return client.getJson(url);
+                        }),
+                        max: 10,
+                        delayFn: ({ current }) => __awaiter(this, void 0, void 0, function* () { return wait(2000 * current); }),
+                        current: 0
+                    });
                     if (!result) {
                         throw new Error(`No successful fetch for ${productId}`);
                     }
