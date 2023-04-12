@@ -232,6 +232,7 @@ function run() {
             });
             core.setOutput('tsv', (0, toTsv_1.toTsv)(['label', 'price', 'url', 'rss'], arr));
             core.setOutput('json', (0, toJson_1.toJSON)(['label', 'price', 'url', 'rss'], arr));
+            core.setOutput('rawJson', JSON.stringify(arr, null, 2));
         }
         catch (error) {
             console.log(error);

@@ -12,7 +12,9 @@ outputs:
   tsv:
     description: 'Report as tsv'
   json:
-    description: 'Report as tsv'
+    description: 'Report as json'
+  rawJson:
+    description: 'Report as raw json'
 
 runs:
   using: 'node16'
