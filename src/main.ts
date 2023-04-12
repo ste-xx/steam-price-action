@@ -91,7 +91,7 @@ async function run(): Promise<void> {
         const response = await withRetryDelay({
           fn: async () => client.get(url),
           max: 10,
-          delayFn: async ({current}) => wait(2000 * current),
+          delayFn: async ({current}) => wait(500 * current),
           current: 0
         })
         const html = await response.readBody()
@@ -122,7 +122,7 @@ async function run(): Promise<void> {
               url
             ),
           max: 10,
-          delayFn: async ({current}) => wait(2000 * current),
+          delayFn: async ({current}) => wait(500 * current),
           current: 0
         })
 
@@ -143,7 +143,7 @@ async function run(): Promise<void> {
 
     core.setOutput('tsv', toTsv(['label', 'price', 'url', 'rss'], arr))
     core.setOutput('json', toJSON(['label', 'price', 'url', 'rss'], arr))
-    core.setOutput('rawJson', JSON.stringify(arr, null, 2))
+    core.setOutput('rawJson', JSON.stringify(withPrice, null, 2))
   } catch (error) {
     console.log(error)
     if (error instanceof Error) core.setFailed(error.message)
