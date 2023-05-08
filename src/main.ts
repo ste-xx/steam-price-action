@@ -101,7 +101,7 @@ async function run(): Promise<void> {
             'data-product-id'
           ]
         if (!productId) {
-          throw new Error('unknown product')
+          throw new Error(`unknown product: ${productName}`)
         }
         return productId
       },
