@@ -23,7 +23,7 @@ const fetchProductIdFromSteamProduct = (args) => __awaiter(void 0, void 0, void 
         .map(input => (Object.assign(Object.assign({}, input), { requestName: input.name
             .replaceAll(' ', '-')
             .toLowerCase()
-            .replace(/[^a-z1-9-]/gi, '') })))
+            .replace(/[^a-z0-9-]/gi, '') })))
         .map((input) => __awaiter(void 0, void 0, void 0, function* () {
         const productId = yield args.fetchData(input.requestName);
         return Object.assign(Object.assign({}, input), { productId });

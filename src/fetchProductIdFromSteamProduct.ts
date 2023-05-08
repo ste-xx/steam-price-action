@@ -22,7 +22,7 @@ export const fetchProductIdFromSteamProduct = async (
         requestName: input.name
           .replaceAll(' ', '-')
           .toLowerCase()
-          .replace(/[^a-z1-9-]/gi, '')
+          .replace(/[^a-z0-9-]/gi, '')
       }))
       .map(async input => {
         const productId = await args.fetchData(input.requestName)
