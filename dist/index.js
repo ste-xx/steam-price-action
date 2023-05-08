@@ -197,7 +197,7 @@ function run() {
                     const document = (0, node_html_parser_1.parse)(html);
                     const productId = (_a = document.querySelector('[data-product-id]')) === null || _a === void 0 ? void 0 : _a.attributes['data-product-id'];
                     if (!productId) {
-                        throw new Error('unknown product');
+                        throw new Error(`unknown product: ${productName}`);
                     }
                     return productId;
                 }),
