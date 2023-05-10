@@ -8,6 +8,9 @@ inputs:
   profileId:
     description: 'given steam profile id'
     required: true
+  productNameMapping:
+    description: 'product name mapping'
+    required: false
 outputs:
   tsv:
     description: 'Report as tsv'

@@ -17,10 +17,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fetchProductIdFromSteamProduct = void 0;
+const createMapper = (productNameMapper) => (productName) => {
+    var _a, _b;
+    return (_b = (_a = productNameMapper.find(e => e.from.trim() === productName.trim())) === null || _a === void 0 ? void 0 : _a.to) !== null && _b !== void 0 ? _b : productName.trim();
+};
 const fetchProductIdFromSteamProduct = (args) => __awaiter(void 0, void 0, void 0, function* () {
+    const mapper = createMapper(args.withMapper);
     return Promise.all(args
         .readInput()
-        .map(input => (Object.assign(Object.assign({}, input), { requestName: input.name
+        .map(input => (Object.assign(Object.assign({}, input), { requestName: mapper(input.name)
             .replaceAll(' ', '-')
             .toLowerCase()
             .replace(/[^a-z0-9-]/gi, '') })))
@@ -139,6 +144,23 @@ const fetchProductIdFromSteamProduct_1 = __nccwpck_require__(3406);
 const fetchSalesDataFromProductId_1 = __nccwpck_require__(8028);
 const toTsv_1 = __nccwpck_require__(3746);
 const toJson_1 = __nccwpck_require__(8785);
+const wait = (ms) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
+});
+const withRetryDelay = (withRetryParam) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fn, max, current, delayFn } = withRetryParam;
+    console.log(`retry ${current}`);
+    if (current >= max) {
+        return Promise.reject(new Error(`failed with ${max} retries`));
+    }
+    // eslint-disable-next-line github/no-then
+    return fn().catch((e) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(e);
+        console.log('###');
+        yield delayFn({ current });
+        return withRetryDelay(Object.assign(Object.assign({}, withRetryParam), { current: withRetryParam.current + 1 }));
+    }));
+});
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -165,23 +187,6 @@ function run() {
             });
             console.log(whishList);
             const withRss = whishList.map(i => (Object.assign(Object.assign({}, i), { rss: `https://steamcommunity.com/games/${i.key}/rss` })));
-            const wait = (ms) => __awaiter(this, void 0, void 0, function* () {
-                return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
-            });
-            const withRetryDelay = (withRetryParam) => __awaiter(this, void 0, void 0, function* () {
-                const { fn, max, current, delayFn } = withRetryParam;
-                console.log(`retry ${current}`);
-                if (current >= max) {
-                    return Promise.reject(new Error(`failed with ${max} retries`));
-                }
-                // eslint-disable-next-line github/no-then
-                return fn().catch((e) => __awaiter(this, void 0, void 0, function* () {
-                    console.log(e);
-                    console.log('###');
-                    yield delayFn({ current });
-                    return withRetryDelay(Object.assign(Object.assign({}, withRetryParam), { current: withRetryParam.current + 1 }));
-                }));
-            });
             const withProductId = yield (0, fetchProductIdFromSteamProduct_1.fetchProductIdFromSteamProduct)({
                 fetchData: (productName) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
@@ -202,7 +207,13 @@ function run() {
                     return productId;
                 }),
                 // readInput: () => ['the-last-spell']
-                readInput: () => withRss
+                readInput: () => {
+                    return withRss;
+                },
+                withMapper: core.getMultilineInput('productNameMapping').map(line => {
+                    const [from, to] = line.split('|').map(e => e.trim());
+                    return { from, to };
+                })
             });
             console.log(withProductId);
             const withPrice = yield (0, fetchSalesDataFromProductId_1.fetchSalesDataFromProductId)({

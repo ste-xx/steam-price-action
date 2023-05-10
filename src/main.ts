@@ -13,6 +13,37 @@ import {
 import {toTsv} from './toTsv'
 import {toJSON} from './toJson'
 
+const wait = async (ms: number): Promise<unknown> => {
+  return new Promise(resolve => setTimeout(() => resolve(undefined), ms))
+}
+
+interface WithRetryDelayParam<T> {
+  fn: () => Promise<T>
+  max: number
+  current: number
+  delayFn: (params: {current: number}) => Promise<unknown>
+}
+
+const withRetryDelay = async <T>(
+  withRetryParam: WithRetryDelayParam<T>
+): Promise<T> => {
+  const {fn, max, current, delayFn} = withRetryParam
+  console.log(`retry ${current}`)
+  if (current >= max) {
+    return Promise.reject(new Error(`failed with ${max} retries`))
+  }
+  // eslint-disable-next-line github/no-then
+  return fn().catch(async e => {
+    console.log(e)
+    console.log('###')
+    await delayFn({current})
+    return withRetryDelay({
+      ...withRetryParam,
+      current: withRetryParam.current + 1
+    })
+  })
+}
+
 async function run(): Promise<void> {
   try {
     const fetchSteamWhishList = async (
@@ -46,43 +77,13 @@ async function run(): Promise<void> {
       fetchData: fetchSteamWhishList,
       readInput: () => ({steamProfileId: core.getInput('profileId')})
     })
+
     console.log(whishList)
 
     const withRss = whishList.map(i => ({
       ...i,
       rss: `https://steamcommunity.com/games/${i.key}/rss`
     }))
-
-    const wait = async (ms: number): Promise<unknown> => {
-      return new Promise(resolve => setTimeout(() => resolve(undefined), ms))
-    }
-
-    interface WithRetryDelayParam<T> {
-      fn: () => Promise<T>
-      max: number
-      current: number
-      delayFn: (params: {current: number}) => Promise<unknown>
-    }
-
-    const withRetryDelay = async <T>(
-      withRetryParam: WithRetryDelayParam<T>
-    ): Promise<T> => {
-      const {fn, max, current, delayFn} = withRetryParam
-      console.log(`retry ${current}`)
-      if (current >= max) {
-        return Promise.reject(new Error(`failed with ${max} retries`))
-      }
-      // eslint-disable-next-line github/no-then
-      return fn().catch(async e => {
-        console.log(e)
-        console.log('###')
-        await delayFn({current})
-        return withRetryDelay({
-          ...withRetryParam,
-          current: withRetryParam.current + 1
-        })
-      })
-    }
 
     const withProductId = await fetchProductIdFromSteamProduct({
       fetchData: async productName => {
@@ -106,7 +107,13 @@ async function run(): Promise<void> {
         return productId
       },
       // readInput: () => ['the-last-spell']
-      readInput: () => withRss
+      readInput: () => {
+        return withRss
+      },
+      withMapper: core.getMultilineInput('productNameMapping').map(line => {
+        const [from, to] = line.split('|').map(e => e.trim())
+        return {from, to}
+      })
     })
 
     console.log(withProductId)

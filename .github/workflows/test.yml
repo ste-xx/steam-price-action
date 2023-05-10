@@ -22,3 +22,7 @@ jobs:
       - uses: ./
         with:
           profileId: ${{ secrets.STEAM_PROFILE_ID }}
+          productNameMapping: |
+            weird west definitive edition | weird west
+            darkest dungeon ii            | darkest dungeon 2
+            
